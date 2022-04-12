@@ -106,6 +106,19 @@ function read(req, res) {
   res.json({ data: dish });
 }
 
+function dishIdMatches(req, res, next) {
+  const dishId = req.params.dishId;
+  const { data: { id } = {} } = req.body;
+
+  if (dishId === id || !id) {
+    return next();
+  }
+  next({
+    status: 400,
+    message: `No matching dish id: ${id}  is found.`,
+  });
+}
+
 function update(req, res) {
   const dish = res.locals.dish;
   const { data: { name, description, price, image_url } = {} } = req.body;
@@ -134,6 +147,7 @@ module.exports = {
   read: [dishExists, read],
   update: [
     dishExists,
+    dishIdMatches,
     dataHasProp("name"),
     dataHasProp("description"),
     dataHasProp("price"),
